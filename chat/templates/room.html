@@ -1,0 +1,97 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>Chat Room</title>
+    <link rel="stylesheet" href="{% static 'css/chatroom.css' %}">
+</head>
+
+<body>
+  <div class="container">
+    <div class="chat-container">
+      <div id="chat-log">
+
+      </div>
+    </div>
+    <div>
+      <input class="chat-input" type="text" size="100"/>
+      <input class="chat-submit" type="button" value="제출"/>
+    </div>
+  </div>
+</body>
+
+<script>
+  (function() {
+    var roomName = {{ room_name_json }};
+
+    var chatSocket = new WebSocket(
+        'ws://' + window.location.host +
+        '/ws/chat/' + roomName + '/');
+
+    chatSocket.onmessage = function(e) {
+        var data = JSON.parse(e.data);
+        var message = data['message'];
+        let etc = data['etc_message'];
+        let chat = document.createElement('div');
+        let chatBox = document.createElement('div');
+        let chatName = document.createElement('div');
+        let space = document.createElement('div');
+        let chatContainer = document.querySelector('.chat-container');
+        
+        if(message) {
+          space.style="margin-bottom: 10px;"
+
+          chat.className="_chat"
+
+          if(data['id'] === data['selfId']) {
+            chatBox.innerText = message;
+            chatBox.className="chat-me";
+            chat.appendChild(chatBox);
+          }
+          else {
+            chatBox.innerText = message;
+            chatBox.className="chat-other";
+            chatName.innerText=`손님${data['id']}`;
+            chat.appendChild(chatName);
+            chat.appendChild(space);
+            chat.appendChild(chatBox);
+          }
+        }
+        else {
+          chatBox.innerText=etc;
+          chat.className="_chat_etc"
+          chat.appendChild(chatBox);
+        }
+
+        document.querySelector("#chat-log").appendChild(chat);
+        chatContainer.scrollTop = chatContainer.scrollHeight
+    };
+
+    chatSocket.onclose = function(e) {
+        alert('서버와 연결이 종료되었습니다.');
+    };
+
+    document.querySelector('.chat-input').focus();
+    document.querySelector('.chat-input').onkeyup = function(e) {
+        if (e.keyCode === 13) {  // enter, return
+            document.querySelector('.chat-submit').click();
+        }
+    };
+
+    document.querySelector('.chat-submit').onclick = function(e) {
+        var messageInputDom = document.querySelector('.chat-input');
+        var message = messageInputDom.value;
+        if(message !== "") {
+          chatSocket.send(JSON.stringify({
+              'message': message
+          }));
+
+          messageInputDom.value = '';
+        
+        }
+    };
+  })();
+</script>
+
+</html>
