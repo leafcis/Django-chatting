@@ -94,6 +94,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def chat_message(self, event):
         if('state' not in event.keys()):
             message = event['message']
+            isLogin = event['isLogin']
             id = event['id']
             username = event['username']
             await self.send(text_data=json.dumps({
@@ -101,12 +102,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 'id': id,
                 'selfId' : self.scope["session"]["seed"],
                 'username': username,
-                'isLogin': self.scope["user"].is_authenticated,
+                'isLogin': isLogin,
             }))
         else:
             _id = event['id']
             message = event['message']
             username = event['username']
+            isLogin = event['isLogin']
             id = "손님" + str(event['id'])
             if(event['isLogin'] is True):
                 id = username
@@ -115,5 +117,5 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 'selfId': self.scope["session"]["seed"],
                 'etc_message': message.format(id),
                 'username': username,
-                'isLogin': self.scope["user"].is_authenticated,
+                'isLogin': isLogin,
             }))

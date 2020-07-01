@@ -51,6 +51,7 @@
           else {
             chatBox.innerText = message;
             chatBox.className="chat-other";
+            console.log(data)
             chatName.innerText=data.isLogin ? data.username : `손님${data['id']}`;
             chat.appendChild(chatName);
             chat.appendChild(space);
