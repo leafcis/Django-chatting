@@ -32,7 +32,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
         self.scope["session"]["seed"] = random.randint(1, 1000)
         self.room_name = self.scope['url_route']['kwargs']['room_name']
         self.room_group_name = 'chat_%s' % self.room_name
-        self.ignore = []
         
         await self.channel_layer.group_add(
             self.room_group_name,
@@ -50,8 +49,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
             {
                 'type': 'chat_message',
                 'state': 'join',
-                'message': '손님{0} 님이 채팅에 들어오셨습니다.',
-                'id': self.scope["session"]["seed"]
+                'message': '{0} 님이 채팅에 들어오셨습니다.',
+                'id': self.scope["session"]["seed"],
+                'username': self.scope["user"].username,
+                'isLogin': self.scope["user"].is_authenticated,
             }
         )
 
@@ -69,8 +70,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
             {
                 'type': 'chat_message',
                 'state': 'leave',
-                'message': '손님{0} 님이 채팅을 나가셨습니다.',
-                'id': self.scope["session"]["seed"]
+                'message': '{0} 님이 채팅을 나가셨습니다.',
+                'id': self.scope["session"]["seed"],
+                'username': self.scope["user"].username,
+                'isLogin': self.scope["user"].is_authenticated,
             }
         )
 
@@ -82,7 +85,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
             {
                 'type': 'chat_message',
                 'message': message,
-                'id': self.scope["session"]["seed"]
+                'id': self.scope["session"]["seed"],
+                'username': self.scope["user"].username,
+                'isLogin': self.scope["user"].is_authenticated,
             }
         )
 
@@ -90,14 +95,25 @@ class ChatConsumer(AsyncWebsocketConsumer):
         if('state' not in event.keys()):
             message = event['message']
             id = event['id']
+            username = event['username']
             await self.send(text_data=json.dumps({
                 'message': message,
                 'id': id,
-                'selfId' : self.scope["session"]["seed"]
+                'selfId' : self.scope["session"]["seed"],
+                'username': username,
+                'isLogin': self.scope["user"].is_authenticated,
             }))
         else:
+            _id = event['id']
             message = event['message']
-            id = event['id']
+            username = event['username']
+            id = "손님" + str(event['id'])
+            if(event['isLogin'] is True):
+                id = username
             await self.send(text_data=json.dumps({
+                'id': _id,
+                'selfId': self.scope["session"]["seed"],
                 'etc_message': message.format(id),
+                'username': username,
+                'isLogin': self.scope["user"].is_authenticated,
             }))

@@ -7,7 +7,14 @@
 </head>
 
 <body>
-    What chat room would you like to enter?<br/>
+    <header>{% if userdata %}
+                {{ userdata }}님 환영합니다!
+
+                {% else %}
+                <a href="/accounts/login">로그인</a> | <a href="/accounts/signup">회원가입</a>
+            {% endif %}
+    </header>
+    방을 입력해 주세요<br/>
     <input id="room-name-input" type="text" size="100"/><br/>
     <input id="room-name-submit" type="button" value="Enter"/>
     {% if room_list %}

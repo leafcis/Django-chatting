@@ -3,12 +3,14 @@
 {% block content %}
 
 <div>
-  <h1>로그인</h1>
+  <h1>회원가입</h1>
 
-  <form method="POST" action="{% url 'login'%}">
+  <form method="POST" action="{% url 'signup'%}">
     {% csrf_token %}
-    아이디 : <input name="id" type="text"/>
-    비밀번호 : <input name="password" type="password"/>
+    아이디 : <input name="id" type="text"/><br/>
+    비밀번호 : <input name="password" type="password"/><br/>
+    비밀번호 확인 : <input name="password-confirm" type="password"/><br/>
+    <input type="submit" value="회원가입"/>   
   </form>
 </div>
 

@@ -11,7 +11,6 @@
   <div class="container">
     <div class="chat-container">
       <div id="chat-log">
-
       </div>
     </div>
     <div>
@@ -23,7 +22,7 @@
 
 <script>
   (function() {
-    var roomName = {{ room_name_json }};
+    var roomName = {{ room_name_json }}
 
     var chatSocket = new WebSocket(
         'ws://' + window.location.host +
@@ -52,13 +51,13 @@
           else {
             chatBox.innerText = message;
             chatBox.className="chat-other";
-            chatName.innerText=`손님${data['id']}`;
+            chatName.innerText=data.isLogin ? data.username : `손님${data['id']}`;
             chat.appendChild(chatName);
             chat.appendChild(space);
             chat.appendChild(chatBox);
           }
         }
-        else {
+        else if(data['id'] !== data['selfId']){
           chatBox.innerText=etc;
           chat.className="_chat_etc"
           chat.appendChild(chatBox);
